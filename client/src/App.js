@@ -5,7 +5,6 @@ import LoginScreen from "./components/LoginScreen";
 import { Switch, Route } from "react-router";
 function App() {
   const [activeTheme, setActiveTheme] = useState("dark");
-  const [user, setUser] = useState(null);
   const changeTheme = () => {
     if (activeTheme === "dark") setActiveTheme("light");
     else setActiveTheme("dark");
@@ -18,7 +17,6 @@ function App() {
       card: "#2b2f3e",
       icon: "#d3d3d3",
       changeTheme,
-      user,
     },
     light: {
       background: "#eee",
@@ -27,7 +25,6 @@ function App() {
       card: "",
       icon: "",
       changeTheme,
-      user,
     },
   };
   return (
@@ -40,7 +37,7 @@ function App() {
           <HomeScreen />
         </Route>
         <Route path="/login">
-          <LoginScreen getUser={(user) => setUser(user)} />
+          <LoginScreen />
         </Route>
       </Switch>
     </ThemeContext.Provider>

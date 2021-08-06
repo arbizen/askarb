@@ -1,7 +1,5 @@
 import styled from "styled-components";
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { endpoint } from "../endpoint";
+import { useState } from "react";
 const TabsContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -46,18 +44,6 @@ export function Tabs({ children }) {
 
 export function NavigationStack({ children, tabs }) {
   const [activeTab, setActiveTab] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [tabData, setTabData] = useState(null);
-  useEffect(() => {
-    setIsLoading(true);
-    (async () => {
-      //if (!tabData) {
-      const { data } = await axios.get(`${endpoint}/questions/all`);
-      setTabData(data.questions);
-      //}
-      setIsLoading(false);
-    })();
-  }, [activeTab]);
   return (
     <>
       <Tabs>
@@ -72,7 +58,7 @@ export function NavigationStack({ children, tabs }) {
             </TabItem>
           ))}
       </Tabs>
-      {children(activeTab, isLoading, tabData)}
+      {children(activeTab)}
     </>
   );
 }

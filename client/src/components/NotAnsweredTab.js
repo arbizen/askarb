@@ -1,12 +1,18 @@
 import styled from "styled-components";
 import { Card, CardContainer, CardBar, CardText } from "./Card";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "../context";
 import IconButton from "./IconButton";
 import { Menu, MenuItem } from "./Menu";
 import { MoreVertical, Clock, User } from "react-feather";
 import { useDispatch, useSelector } from "react-redux";
-import { showDialog } from "../redux/reducers/showDialog";
+import { showDialog, showAnswerDialog } from "../redux/reducers/showDialog";
+import {
+  getNotAnsweredQuestions,
+  loadingQuestions,
+} from "../redux/reducers/questions";
+import axios from "axios";
+import { endpoint } from "../endpoint";
 
 const ContentContainer = styled.div`
   height: auto;
@@ -20,20 +26,20 @@ const ContentContainer = styled.div`
   }
 `;
 
-const NotAnswerCard = ({ question, by, id }) => {
+const NotAnswerCard = ({ question, by, id, at }) => {
   const { icon } = useContext(ThemeContext);
   const [showMenu, setShowMenu] = useState(false);
   const handleMenu = () => setShowMenu(!showMenu);
   const handleMenuClose = () => setShowMenu(false);
   const user = useSelector((state) => state.user.value);
   const dispatch = useDispatch();
-  return (
-    <Card>
+  const cardContent = (
+    <>
       <CardBar
         left={
           <>
             <Clock size={18} color={icon} />
-            <p style={{ marginLeft: "10px" }}>AT • 3:04 PM</p>
+            <p style={{ marginLeft: "10px" }}>AT • {at}</p>
           </>
         }
         right={
@@ -44,8 +50,20 @@ const NotAnswerCard = ({ question, by, id }) => {
                   <MoreVertical size={20} color={icon} />
                 </IconButton>
                 <Menu show={showMenu} onClose={handleMenuClose}>
-                  <MenuItem onItemClick={handleMenuClose}>Answer</MenuItem>
-                  <MenuItem onItemClick={handleMenuClose}>Hide</MenuItem>
+                  <MenuItem
+                    onItemClick={() => {
+                      handleMenuClose();
+                      dispatch(
+                        showAnswerDialog({
+                          questionId: id,
+                          questionText: question,
+                          by,
+                        })
+                      );
+                    }}
+                  >
+                    Answer
+                  </MenuItem>
                   <MenuItem onItemClick={handleMenuClose}>Details</MenuItem>
                   <MenuItem
                     onItemClick={() => {
@@ -83,26 +101,33 @@ const NotAnswerCard = ({ question, by, id }) => {
         }
         leftfull
       />
-    </Card>
+    </>
   );
+  return <Card>{cardContent}</Card>;
 };
 
-export default function NotAnsweredTab({ data }) {
+export default function NotAnsweredTab() {
+  const questions = useSelector((state) => state.questions.value);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(loadingQuestions());
+    axios.get(`${endpoint}/questions/notAnswered`).then(({ data }) => {
+      dispatch(getNotAnsweredQuestions(data.questions));
+    });
+  }, [dispatch]);
   return (
     <ContentContainer>
       <CardContainer>
-        {data &&
-          data.map((question) => (
-            <>
-              {!question.isAnswered && (
-                <NotAnswerCard
-                  key={question._id}
-                  question={question.queText}
-                  by={question.askedBy}
-                  id={question._id}
-                />
-              )}
-            </>
+        {questions &&
+          questions.notAnswered &&
+          questions.notAnswered.map((question) => (
+            <NotAnswerCard
+              key={question._id}
+              question={question.queText}
+              by={question.askedBy}
+              id={question._id}
+              at={question.answerAt}
+            />
           ))}
       </CardContainer>
     </ContentContainer>

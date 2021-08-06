@@ -9,6 +9,7 @@ import { useHistory } from "react-router";
 import { useDispatch } from "react-redux";
 import { setUser } from "../redux/reducers/user";
 import { endpoint } from "../endpoint";
+import { showToast } from "../redux/reducers/toast";
 
 const LoginHeader = styled.h3`
   color: #fff;
@@ -40,7 +41,7 @@ const Error = styled.p`
   margin-top: 20px;
 `;
 
-export default function LoginScreen({ getUser }) {
+export default function LoginScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -61,9 +62,9 @@ export default function LoginScreen({ getUser }) {
       setError(user.data.text);
     } else {
       setIsSubmitting(false);
-      getUser(user.data);
       dispatch(setUser(user.data));
       localStorage.setItem("user", JSON.stringify(user));
+      dispatch(showToast("Logged in successfully."));
       history.push("/homepage");
     }
   };

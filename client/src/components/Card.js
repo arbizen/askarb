@@ -54,6 +54,22 @@ const CardBodyText = styled.p`
   color: #959da5;
 `;
 
+const HiddenCardHolder = styled.div`
+  height: 100%;
+  width: 100%;
+  color: #808080;
+  padding: 5px 10px;
+  border-left: 3px solid grey;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const CardInfoHolder = styled.p`
+  margin: 0 0 10px 0;
+  color: #808080;
+`;
+
 export function CardContainer({ children }) {
   return <CardHolder>{children}</CardHolder>;
 }
@@ -61,6 +77,10 @@ export function CardContainer({ children }) {
 export function Card({ children }) {
   const { card } = useContext(ThemeContext);
   return <MainCard bg={card}>{children}</MainCard>;
+}
+
+export function HiddenCard({ children }) {
+  return <HiddenCardHolder>{children}</HiddenCardHolder>;
 }
 
 export function CardBar({ left, right, leftfull, rightfull, at }) {
@@ -79,4 +99,8 @@ export function CardText({ type, text }) {
       {type === "body" && <CardBodyText>{text}</CardBodyText>}
     </>
   );
+}
+
+export function CardInfo({ children }) {
+  return <CardInfoHolder>{children}</CardInfoHolder>;
 }

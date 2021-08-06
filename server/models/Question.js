@@ -16,6 +16,10 @@ const questionSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  isHidden: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const questionModel = mongoose.model("Question", questionSchema);

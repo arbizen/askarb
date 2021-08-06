@@ -113,7 +113,7 @@ export function Dialog({
   secondaryTitle,
   onProceed,
   children,
-  defaultView,
+  proceedText,
 }) {
   useEffect(() => {
     if (show) {
@@ -134,12 +134,10 @@ export function Dialog({
         </DialogHeader>
         <DialogSecondaryHeader>{secondaryTitle}</DialogSecondaryHeader>
         <DialogContent>{children}</DialogContent>
-        {defaultView && (
-          <DialogFooter>
-            <DialogButton onClick={onClose}>Cancel</DialogButton>
-            <DialogButton onClick={onProceed}>Ask</DialogButton>
-          </DialogFooter>
-        )}
+        <DialogFooter>
+          <DialogButton onClick={onClose}>Cancel</DialogButton>
+          <DialogButton onClick={onProceed}>{proceedText}</DialogButton>
+        </DialogFooter>
       </Container>
       ;
       {show && (

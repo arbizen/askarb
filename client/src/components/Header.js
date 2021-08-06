@@ -6,6 +6,7 @@ import { Moon, Sun, Menu, Home, LogIn, LogOut } from "react-feather";
 import { useSelector, useDispatch } from "react-redux";
 import { removeUser } from "../redux/reducers/user";
 import { useHistory } from "react-router";
+import { showToast } from "../redux/reducers/toast";
 
 const Header = styled.div`
   height: auto;
@@ -111,7 +112,7 @@ export default function HeaderBar() {
             <IconButton
               onIconClick={() => {
                 dispatch(removeUser());
-                history.push("/login");
+                dispatch(showToast("Logged out successfully."));
               }}
             >
               <LogOut color={icon} size={20} />
