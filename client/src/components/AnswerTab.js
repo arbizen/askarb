@@ -14,10 +14,14 @@ import { ThemeContext } from "../context";
 import { Menu, MenuItem } from "./Menu";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { showDialog } from "../redux/reducers/showDialog";
+import {
+  showDialog,
+  showEditQuestionDialogue,
+} from "../redux/reducers/showDialog";
 import {
   getAnsweredQuestions,
   loadingQuestions,
+  setType,
 } from "../redux/reducers/questions";
 import axios from "axios";
 import { endpoint } from "../endpoint";
@@ -31,22 +35,30 @@ const AnswerCard = ({ question, answer, at, by, id, hidden }) => {
   const user = useSelector((state) => state.user.value);
   const dispatch = useDispatch();
   const hideQuestion = async (id) => {
-    await axios.post(`${endpoint}/questions/update`, {
-      token: user && user.data.token,
-      id,
-      isHidden: !hidden,
-    });
-    dispatch(showToast(`Question ${hidden ? "un" : ""}hidden.`));
+    try {
+      await axios.post(`${endpoint}/questions/update`, {
+        token: user && user.data.token,
+        id,
+        isHidden: !hidden,
+      });
+      dispatch(showToast(`Question ${hidden ? "un" : ""}hidden.`));
+    } catch (error) {
+      dispatch(showToast("Session expired."));
+    }
   };
   const unanswerQuestion = async (id) => {
-    await axios.post(`${endpoint}/questions/update`, {
-      token: user && user.data.token,
-      id,
-      ansText: "",
-      isAnswered: false,
-      isHidden: false,
-    });
-    dispatch(showToast("Question unanswered."));
+    try {
+      await axios.post(`${endpoint}/questions/update`, {
+        token: user && user.data.token,
+        id,
+        ansText: "",
+        isAnswered: false,
+        isHidden: false,
+      });
+      dispatch(showToast("Question unanswered."));
+    } catch (error) {
+      dispatch(showToast("Session expired."));
+    }
   };
   const ftch = () => {
     dispatch(loadingQuestions());
@@ -76,7 +88,20 @@ const AnswerCard = ({ question, answer, at, by, id, hidden }) => {
                   <MoreVertical size={20} color={icon} />
                 </IconButton>
                 <Menu show={showMenu} onClose={handleMenuClose}>
-                  <MenuItem onItemClick={handleMenuClose}>Edit</MenuItem>
+                  <MenuItem
+                    onItemClick={() => {
+                      handleMenuClose();
+                      dispatch(
+                        showEditQuestionDialogue({
+                          id,
+                          title: question,
+                          answer,
+                        })
+                      );
+                    }}
+                  >
+                    Edit
+                  </MenuItem>
                   <MenuItem
                     onItemClick={() => {
                       handleMenuClose();
@@ -98,6 +123,7 @@ const AnswerCard = ({ question, answer, at, by, id, hidden }) => {
                   <MenuItem
                     onItemClick={() => {
                       dispatch(showDialog(id));
+                      dispatch(setType("answered"));
                       handleMenuClose();
                     }}
                   >

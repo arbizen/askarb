@@ -11,7 +11,11 @@ import { Plus } from "react-feather";
 import Container from "./Container";
 import { useSelector, useDispatch } from "react-redux";
 import { updateUser } from "../redux/reducers/user";
-import { hideDialog, hideAnswerDialog } from "../redux/reducers/showDialog";
+import {
+  hideDialog,
+  hideAnswerDialog,
+  hideEditQuestionDialogue,
+} from "../redux/reducers/showDialog";
 import axios from "axios";
 import { endpoint } from "../endpoint";
 import { getTimeNow } from "../extra/time";
@@ -47,7 +51,9 @@ const DialogInputHolder = styled.input`
 const DialogInput = (props) => {
   const container = useRef(null);
   useEffect(() => {
-    container.current.focus();
+    if (container.current) {
+      container.current.focus();
+    }
   }, []);
   return <DialogInputHolder ref={container} {...props} />;
 };
@@ -67,44 +73,80 @@ export default function HomeScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const submitQuestion = async () => {
     setIsLoading(true);
-    const data = {
-      queText: question,
-      askedBy: "Annonymous",
-      answerAt: getTimeNow(),
-      isAnswered: false,
-      ansText: "",
-    };
-    if (question) {
-      await axios.post(`${endpoint}/questions/add`, data);
-      setQuestion("");
-      handleDialogClose();
-      dispatch(showToast("Question submitted."));
+    try {
+      const data = {
+        queText: question,
+        askedBy: "Annonymous",
+        answerAt: getTimeNow(),
+        isAnswered: false,
+        ansText: "",
+      };
+      if (question) {
+        await axios.post(`${endpoint}/questions/add`, data);
+        setQuestion("");
+        handleDialogClose();
+        dispatch(showToast("Question submitted."));
+        setIsLoading(false);
+      } else {
+        handleDialogClose();
+        setIsLoading(false);
+      }
+    } catch (error) {
+      dispatch(showToast("Session expired."));
       setIsLoading(false);
-    } else {
-      handleDialogClose();
+    }
+  };
+  const editAnswer = async () => {
+    setIsLoading(true);
+    try {
+      if (question) {
+        await axios.post(`${endpoint}/questions/update`, {
+          id: dialogue && dialogue.questionId,
+          token: user && user.data.token,
+          ansText: question,
+        });
+        setQuestion("");
+        dispatch(showToast("Question edited."));
+        dispatch(hideEditQuestionDialogue());
+        setIsLoading(false);
+      } else {
+        dispatch(hideEditQuestionDialogue());
+        setIsLoading(false);
+      }
+    } catch (error) {
+      dispatch(showToast("Session expired."));
       setIsLoading(false);
     }
   };
   const submitAnswer = async () => {
     setIsLoading(true);
-    await axios.post(`${endpoint}/questions/update`, {
-      id: dialogue && dialogue.questionId,
-      ansText: question,
-      answerAt: getTimeNow(),
-      isAnswered: true,
-      token: user && user.data.token,
-    });
-    dispatch(hideAnswerDialog());
-    dispatch(showToast("Answer added."));
-    setQuestion("");
-    setIsLoading(false);
+    try {
+      await axios.post(`${endpoint}/questions/update`, {
+        id: dialogue && dialogue.questionId,
+        ansText: question,
+        answerAt: getTimeNow(),
+        isAnswered: true,
+        token: user && user.data.token,
+      });
+      dispatch(hideAnswerDialog());
+      dispatch(showToast("Answer added."));
+      setQuestion("");
+      setIsLoading(false);
+    } catch (error) {
+      dispatch(showToast("Session expired."));
+      setIsLoading(false);
+    }
   };
   const deleteQuestion = async () => {
-    await axios.post(`${endpoint}/questions/delete`, {
-      id: dialogue && dialogue.questionId,
-      token: user && user.data.token,
-    });
-    dispatch(showToast("Question deleted."));
+    try {
+      await axios.post(`${endpoint}/questions/delete`, {
+        id: dialogue && dialogue.questionId,
+        token: user && user.data.token,
+      });
+      dispatch(showToast("Question deleted."));
+    } catch (error) {
+      dispatch(showToast("Session expired."));
+    }
   };
   useEffect(() => {
     dispatch(updateUser());
@@ -122,11 +164,6 @@ export default function HomeScreen() {
       <NavigationStack tabs={tabs}>
         {(activeTab) => (
           <>
-            {/* {isLoading && (
-              <LoadingContainer>
-                <HashLoader color="#fff" size={30} />
-              </LoadingContainer>
-            )} */}
             {allQuestions && allQuestions.isLoading && (
               <LoadingContainer>
                 <HashLoader color="#fff" size={30} />
@@ -179,14 +216,30 @@ export default function HomeScreen() {
           deleteQuestion();
           dispatch(hideDialog());
           dispatch(loadingQuestions());
-          axios.get(`${endpoint}/questions/answered`).then(({ data }) => {
-            dispatch(
-              getAnsweredQuestions({
-                answered: data.questions ? data.questions : [],
-                len: data.dataLen ? data.dataLen : 0,
-              })
-            );
-          });
+          console.log(
+            `${endpoint}/questions/${allQuestions && allQuestions.type}`
+          );
+          axios
+            .get(`${endpoint}/questions/${allQuestions && allQuestions.type}`)
+            .then(({ data }) => {
+              if (allQuestions) {
+                if (allQuestions.type === "answered") {
+                  dispatch(
+                    getAnsweredQuestions({
+                      answered: data.questions ? data.questions : [],
+                      len: data.dataLen ? data.dataLen : 0,
+                    })
+                  );
+                } else {
+                  dispatch(
+                    getNotAnsweredQuestions({
+                      notAnswered: data.questions ? data.questions : [],
+                      len: data.dataLen ? data.dataLen : 0,
+                    })
+                  );
+                }
+              }
+            });
         }}
       />
       {/* Answer question dialogue */}
@@ -233,6 +286,52 @@ export default function HomeScreen() {
             onChange={handleQuestionChange}
             value={question}
             placeholder="Write your answer"
+            autoFocus
+          />
+        </form>
+      </Dialog>
+      {/* Edit an answer dialog */}
+      <Dialog
+        title={dialogue && dialogue.editQuestionTitle}
+        secondaryTitle={dialogue && dialogue.editQuestionAnswer}
+        show={dialogue && dialogue.showEditQuestionDialogue}
+        proceedText={isLoading ? "Editing..." : "Edit"}
+        onClose={() => {
+          dispatch(hideEditQuestionDialogue());
+          setQuestion("");
+        }}
+        onProceed={() => {
+          dispatch(loadingQuestions());
+          editAnswer();
+          axios.get(`${endpoint}/questions/answered`).then(({ data }) => {
+            dispatch(
+              getAnsweredQuestions({
+                answered: data.questions ? data.questions : [],
+                len: data.dataLen ? data.dataLen : 0,
+              })
+            );
+          });
+        }}
+      >
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            editAnswer();
+            dispatch(loadingQuestions());
+            axios.get(`${endpoint}/questions/answered`).then(({ data }) => {
+              dispatch(
+                getAnsweredQuestions({
+                  answered: data.questions ? data.questions : [],
+                  len: data.dataLen ? data.dataLen : 0,
+                })
+              );
+            });
+          }}
+        >
+          <DialogInput
+            onChange={handleQuestionChange}
+            value={question}
+            placeholder="Write new answer."
             autoFocus
           />
         </form>

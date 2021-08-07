@@ -11,6 +11,7 @@ const questionsSlice = createSlice({
     answeredDataLen: 0,
     notAnswered: [],
     notAnsweredDataLen: 0,
+    type: "",
   },
   reducers: {
     getQuestions: (state) => {
@@ -57,6 +58,12 @@ const questionsSlice = createSlice({
         notAnswered: [],
       };
     },
+    setType: (state, action) => {
+      state.value = {
+        ...state.value,
+        type: action.payload,
+      };
+    },
   },
 });
 
@@ -66,5 +73,6 @@ export const {
   getNotAnsweredQuestions,
   loadingQuestions,
   setQuestionNull,
+  setType,
 } = questionsSlice.actions;
 export default questionsSlice.reducer;

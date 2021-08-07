@@ -1,4 +1,3 @@
-import styled from "styled-components";
 import { Card, CardContainer, CardBar, CardText } from "./Card";
 import { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "../context";
@@ -10,6 +9,7 @@ import { showDialog, showAnswerDialog } from "../redux/reducers/showDialog";
 import {
   getNotAnsweredQuestions,
   loadingQuestions,
+  setType,
 } from "../redux/reducers/questions";
 import axios from "axios";
 import { endpoint } from "../endpoint";
@@ -22,17 +22,6 @@ const NotAnswerCard = ({ question, by, id, at }) => {
   const handleMenuClose = () => setShowMenu(false);
   const user = useSelector((state) => state.user.value);
   const dispatch = useDispatch();
-  const ftch = () => {
-    dispatch(loadingQuestions());
-    axios.get(`${endpoint}/questions/notAnswered`).then(({ data }) => {
-      dispatch(
-        getNotAnsweredQuestions({
-          notAnswered: data.questions,
-          len: data.dataLen ? data.dataLen : 0,
-        })
-      );
-    });
-  };
   const cardContent = (
     <>
       <CardBar
@@ -69,7 +58,7 @@ const NotAnswerCard = ({ question, by, id, at }) => {
                     onItemClick={() => {
                       handleMenuClose();
                       dispatch(showDialog(id));
-                      ftch();
+                      dispatch(setType("notAnswered"));
                     }}
                   >
                     Delete
@@ -121,7 +110,6 @@ export default function NotAnsweredTab() {
       );
     });
   }, [dispatch]);
-  console.log(questions);
   return (
     <ContentContainer>
       <CardContainer>
