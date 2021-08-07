@@ -2,7 +2,7 @@ import styled from "styled-components";
 import HeaderBar from "../components/Header";
 import Fab from "../components/Fab";
 import { NavigationStack } from "../components/Tabs";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import HashLoader from "react-spinners/HashLoader";
 import AnswerTab from "./AnswerTab";
 import NotAnsweredTab from "./NotAnsweredTab";
@@ -17,6 +17,11 @@ import { endpoint } from "../endpoint";
 import { getTimeNow } from "../extra/time";
 import Toast from "./Toast";
 import { showToast } from "../redux/reducers/toast";
+import {
+  getNotAnsweredQuestions,
+  getAnsweredQuestions,
+  loadingQuestions,
+} from "../redux/reducers/questions";
 
 const LoadingContainer = styled.div`
   min-height: 300px;
@@ -25,7 +30,7 @@ const LoadingContainer = styled.div`
   align-items: center;
 `;
 
-const DialogInput = styled.input`
+const DialogInputHolder = styled.input`
   display: block;
   width: 100%;
   height: 40px;
@@ -39,6 +44,14 @@ const DialogInput = styled.input`
   }
 `;
 
+const DialogInput = (props) => {
+  const container = useRef(null);
+  useEffect(() => {
+    container.current.focus();
+  }, []);
+  return <DialogInputHolder ref={container} {...props} />;
+};
+
 export default function HomeScreen() {
   const user = useSelector((state) => state.user.value);
   const dispatch = useDispatch();
@@ -51,7 +64,9 @@ export default function HomeScreen() {
   const dialogue = useSelector((state) => state.showDialog.value);
   const handleQuestionChange = (e) => setQuestion(e.target.value);
   const allQuestions = useSelector((state) => state.questions.value);
+  const [isLoading, setIsLoading] = useState(false);
   const submitQuestion = async () => {
+    setIsLoading(true);
     const data = {
       queText: question,
       askedBy: "Annonymous",
@@ -64,11 +79,14 @@ export default function HomeScreen() {
       setQuestion("");
       handleDialogClose();
       dispatch(showToast("Question submitted."));
+      setIsLoading(false);
     } else {
       handleDialogClose();
+      setIsLoading(false);
     }
   };
   const submitAnswer = async () => {
+    setIsLoading(true);
     await axios.post(`${endpoint}/questions/update`, {
       id: dialogue && dialogue.questionId,
       ansText: question,
@@ -79,6 +97,7 @@ export default function HomeScreen() {
     dispatch(hideAnswerDialog());
     dispatch(showToast("Answer added."));
     setQuestion("");
+    setIsLoading(false);
   };
   const deleteQuestion = async () => {
     await axios.post(`${endpoint}/questions/delete`, {
@@ -124,19 +143,26 @@ export default function HomeScreen() {
         title={question || "Ask a cool question?"}
         secondaryTitle="Please make sure you do not ask any personal question and that you are honest enough to ask the questioni? You understand or what?"
         show={showDialog}
-        proceedText="Ask"
+        proceedText={isLoading ? "Asking..." : "Ask"}
         onProceed={submitQuestion}
         onClose={() => {
           handleDialogClose();
           setQuestion("");
         }}
       >
-        <DialogInput
-          onChange={handleQuestionChange}
-          value={question}
-          type="text"
-          placeholder="Please type your question"
-        />
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            submitQuestion();
+          }}
+        >
+          <DialogInput
+            onChange={handleQuestionChange}
+            value={question}
+            type="text"
+            placeholder="Please type your question"
+          />
+        </form>
       </Dialog>
       {/* Delete question dialogue */}
       <Dialog
@@ -152,6 +178,15 @@ export default function HomeScreen() {
         onProceed={() => {
           deleteQuestion();
           dispatch(hideDialog());
+          dispatch(loadingQuestions());
+          axios.get(`${endpoint}/questions/answered`).then(({ data }) => {
+            dispatch(
+              getAnsweredQuestions({
+                answered: data.questions ? data.questions : [],
+                len: data.dataLen ? data.dataLen : 0,
+              })
+            );
+          });
         }}
       />
       {/* Answer question dialogue */}
@@ -165,14 +200,42 @@ export default function HomeScreen() {
           dispatch(hideAnswerDialog());
           setQuestion("");
         }}
-        proceedText="Answer"
-        onProceed={submitAnswer}
+        proceedText={isLoading ? "Adding..." : "Answer"}
+        onProceed={() => {
+          submitAnswer();
+          dispatch(loadingQuestions());
+          axios.get(`${endpoint}/questions/notAnswered`).then(({ data }) => {
+            dispatch(
+              getNotAnsweredQuestions({
+                notAnswered: data.questions ? data.questions : [],
+                len: data.dataLen ? data.dataLen : 0,
+              })
+            );
+          });
+        }}
       >
-        <DialogInput
-          onChange={handleQuestionChange}
-          value={question}
-          placeholder="Write your answer"
-        />
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            submitAnswer();
+            dispatch(loadingQuestions());
+            axios.get(`${endpoint}/questions/notAnswered`).then(({ data }) => {
+              dispatch(
+                getNotAnsweredQuestions({
+                  notAnswered: data.questions ? data.questions : [],
+                  len: data.dataLen ? data.dataLen : 0,
+                })
+              );
+            });
+          }}
+        >
+          <DialogInput
+            onChange={handleQuestionChange}
+            value={question}
+            placeholder="Write your answer"
+            autoFocus
+          />
+        </form>
       </Dialog>
       <Fab onClick={handleDialogOpen}>
         <Plus />

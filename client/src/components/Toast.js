@@ -10,7 +10,7 @@ const ToastHolder = styled.div`
   background: #4caf50;
   color: #fff;
   padding: 10px 15px;
-  position: absolute;
+  position: fixed;
   bottom: 20px;
   transform: translateX(-110%);
   transition: transform 0.5s;

@@ -48,6 +48,17 @@ const AnswerCard = ({ question, answer, at, by, id, hidden }) => {
     });
     dispatch(showToast("Question unanswered."));
   };
+  const ftch = () => {
+    dispatch(loadingQuestions());
+    axios.get(`${endpoint}/questions/answered`).then(({ data }) => {
+      dispatch(
+        getAnsweredQuestions({
+          answered: data.questions ? data.questions : [],
+          len: data.dataLen ? data.dataLen : 0,
+        })
+      );
+    });
+  };
   const cardContent = (
     <>
       <CardBar
@@ -70,6 +81,7 @@ const AnswerCard = ({ question, answer, at, by, id, hidden }) => {
                     onItemClick={() => {
                       handleMenuClose();
                       unanswerQuestion(id);
+                      ftch();
                     }}
                   >
                     Unanswer
@@ -78,6 +90,7 @@ const AnswerCard = ({ question, answer, at, by, id, hidden }) => {
                     onItemClick={() => {
                       handleMenuClose();
                       hideQuestion(id);
+                      ftch();
                     }}
                   >
                     {hidden ? "Unhide" : "Hide"}
@@ -142,7 +155,12 @@ export default function AnswerTab() {
   useEffect(() => {
     dispatch(loadingQuestions());
     axios.get(`${endpoint}/questions/answered`).then(({ data }) => {
-      dispatch(getAnsweredQuestions(data.questions));
+      dispatch(
+        getAnsweredQuestions({
+          answered: data.questions ? data.questions : [],
+          len: data.dataLen ? data.dataLen : 0,
+        })
+      );
     });
   }, [dispatch]);
   return (
@@ -161,13 +179,10 @@ export default function AnswerTab() {
               hidden={question.isHidden}
             />
           ))}
-        {/* <AnswerCard
-          at="3.02 PM"
-          question="Maybe this could be a very good question for you or what, I have such question?"
-          answer="Well, I generally do not like to go for a date, for I'd definitely go if I get a chance to go with someone. I mean, who wouldn't right?"
-          by="Annonymous"
-        /> */}
       </CardContainer>
+      {questions && !questions.isLoading && questions.answeredDataLen === 0 && (
+        <p>No new answer found.</p>
+      )}
     </ContentContainer>
   );
 }

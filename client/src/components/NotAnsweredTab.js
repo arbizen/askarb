@@ -13,18 +13,7 @@ import {
 } from "../redux/reducers/questions";
 import axios from "axios";
 import { endpoint } from "../endpoint";
-
-const ContentContainer = styled.div`
-  height: auto;
-  width: 100%;
-  color: #fff;
-  padding: 20px;
-  max-width: 600px;
-  margin: 0 auto;
-  @media only screen and (max-width: 600px) {
-    width: 100%;
-  }
-`;
+import ContentContainer from "./ContentContainer";
 
 const NotAnswerCard = ({ question, by, id, at }) => {
   const { icon } = useContext(ThemeContext);
@@ -33,6 +22,17 @@ const NotAnswerCard = ({ question, by, id, at }) => {
   const handleMenuClose = () => setShowMenu(false);
   const user = useSelector((state) => state.user.value);
   const dispatch = useDispatch();
+  const ftch = () => {
+    dispatch(loadingQuestions());
+    axios.get(`${endpoint}/questions/notAnswered`).then(({ data }) => {
+      dispatch(
+        getNotAnsweredQuestions({
+          notAnswered: data.questions,
+          len: data.dataLen ? data.dataLen : 0,
+        })
+      );
+    });
+  };
   const cardContent = (
     <>
       <CardBar
@@ -69,6 +69,7 @@ const NotAnswerCard = ({ question, by, id, at }) => {
                     onItemClick={() => {
                       handleMenuClose();
                       dispatch(showDialog(id));
+                      ftch();
                     }}
                   >
                     Delete
@@ -112,9 +113,15 @@ export default function NotAnsweredTab() {
   useEffect(() => {
     dispatch(loadingQuestions());
     axios.get(`${endpoint}/questions/notAnswered`).then(({ data }) => {
-      dispatch(getNotAnsweredQuestions(data.questions));
+      dispatch(
+        getNotAnsweredQuestions({
+          notAnswered: data.questions ? data.questions : [],
+          len: data.dataLen ? data.dataLen : 0,
+        })
+      );
     });
   }, [dispatch]);
+  console.log(questions);
   return (
     <ContentContainer>
       <CardContainer>
@@ -130,6 +137,10 @@ export default function NotAnsweredTab() {
             />
           ))}
       </CardContainer>
+      {questions &&
+        questions.notAnswered &&
+        !questions.isLoading &&
+        questions.notAnsweredDataLen === 0 && <p>No new question found.</p>}
     </ContentContainer>
   );
 }

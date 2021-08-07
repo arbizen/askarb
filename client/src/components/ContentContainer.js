@@ -4,7 +4,7 @@ const ContentContainerHolder = styled.div`
   width: 100%;
   color: #fff;
   padding: 20px;
-  max-width: 650px;
+  max-width: 600px;
   margin: 0 auto;
   @media only screen and (max-width: 600px) {
     width: 100%;

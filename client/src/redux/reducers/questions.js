@@ -8,7 +8,9 @@ const questionsSlice = createSlice({
     all: [],
     isLoading: false,
     answered: [],
+    answeredDataLen: 0,
     notAnswered: [],
+    notAnsweredDataLen: 0,
   },
   reducers: {
     getQuestions: (state) => {
@@ -34,14 +36,16 @@ const questionsSlice = createSlice({
     getAnsweredQuestions: (state, action) => {
       state.value = {
         ...state.value,
-        answered: action.payload,
+        answered: action.payload.answered,
+        answeredDataLen: action.payload.len,
         isLoading: false,
       };
     },
     getNotAnsweredQuestions: (state, action) => {
       state.value = {
         ...state.value,
-        notAnswered: action.payload,
+        notAnswered: action.payload.notAnswered,
+        notAnsweredDataLen: action.payload.len,
         isLoading: false,
       };
     },

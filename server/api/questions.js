@@ -21,7 +21,7 @@ router.get("/all", async (req, res) => {
     const questions = await Question.find().sort({ _id: -1 });
     if (questions.length === 0)
       res.json({ text: "No question found in database." });
-    else res.json({ questions: questions, datalen: questions.length });
+    else res.json({ questions: questions, dataLen: questions.length });
   } catch (error) {
     res.json({ error, text: "Couldn't fetch questions." });
   }
@@ -34,7 +34,7 @@ router.get("/answered", async (req, res) => {
     });
     if (questions.length === 0)
       res.json({ text: "No question found in database." });
-    else res.json({ questions: questions, datalen: questions.length });
+    else res.json({ questions: questions, dataLen: questions.length });
   } catch (error) {
     res.json({ error, text: "Couldn't fetch questions." });
   }
@@ -47,7 +47,7 @@ router.get("/notAnswered", async (req, res) => {
     });
     if (questions.length === 0)
       res.json({ text: "No question found in database." });
-    else res.json({ questions: questions, datalen: questions.length });
+    else res.json({ questions: questions, dataLen: questions.length });
   } catch (error) {
     res.json({ error, text: "Couldn't fetch questions." });
   }
