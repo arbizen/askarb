@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import styled from "styled-components";
 import Container from "./Container";
 import ContentContainer from "./ContentContainer";
@@ -10,14 +10,15 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../redux/reducers/user";
 import { endpoint } from "../endpoint";
 import { showToast } from "../redux/reducers/toast";
+import { ThemeContext } from "../context";
 
 const LoginHeader = styled.h3`
-  color: #fff;
+  color: ${(props) => props.color};
 `;
 
 const Info = styled.p`
   font-size: 12px;
-  color: #d3d3d3;
+  color: ${(props) => props.color};
   margin-top: 5px;
 `;
 
@@ -30,15 +31,17 @@ const LoginForm = styled.form`
 const Submit = styled.button`
   height: auto;
   padding: 13px;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.1);
+  color: ${(props) => props.color};
+  background: ${(props) => props.bg};
   margin: 15px 0;
   border: none;
   cursor: pointer;
+  box-shadow: 0 1.5px 3.5px rgba(0, 0, 0, 0.12);
 `;
 
 const Error = styled.p`
   margin-top: 20px;
+  color: ${(props) => props.color};
 `;
 
 export default function LoginScreen() {
@@ -68,6 +71,7 @@ export default function LoginScreen() {
       history.push("/homepage");
     }
   };
+  const { login, text } = useContext(ThemeContext);
   return (
     <Container>
       <Header />
@@ -84,9 +88,9 @@ export default function LoginScreen() {
           }
         `}
       >
-        <LoginHeader>Login to answer question</LoginHeader>
-        <Info>Only admin can login for now :)</Info>
-        {error && <Error>{error}</Error>}
+        <LoginHeader color={login.text}>Login to answer question</LoginHeader>
+        <Info color={login.textSecondary}>Only admin can login for now :)</Info>
+        {error && <Error color={text}>{error}</Error>}
         <LoginForm onSubmit={handleSubmit}>
           <Input
             id="username"
@@ -104,7 +108,12 @@ export default function LoginScreen() {
             onChange={handlePasswordChange}
             required
           />
-          <Submit onSubmit={handleSubmit} type="submit">
+          <Submit
+            color={login.buttonText}
+            bg={login.button}
+            onSubmit={handleSubmit}
+            type="submit"
+          >
             {isSubmitting ? "Loading..." : "Login"}
           </Submit>
         </LoginForm>

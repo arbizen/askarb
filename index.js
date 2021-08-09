@@ -33,11 +33,11 @@ app.use("/user", userRouter);
 
 /**** PRODUCTION MANAGEMENT *****/
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.resolve(__dirname, "../client/build")));
+  app.use(express.static(path.resolve(__dirname, "./client/build")));
   // after all the routes define above, if any other route is accessed, we should
   // resolve the index.html page of production build
   app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
+    res.sendFile(path.resolve(__dirname, "./client/build", "index.html"));
   });
 }
 //================================

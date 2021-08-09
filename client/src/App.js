@@ -22,6 +22,13 @@ function App() {
       tabInactive: "#808080",
       header: "#fff",
       headerNext: "#000",
+      login: {
+        inputBg: "rgba(255,255,255,0.1)",
+        header: "#fff",
+        textSecondary: "#d3d3d3",
+        button: "rgba(255,255,255,0.1)",
+        buttonText: "#fff",
+      },
       changeTheme,
     },
     light: {
@@ -36,6 +43,13 @@ function App() {
       tabInactive: "#808080",
       header: "#000",
       headerNext: "#fff",
+      login: {
+        inputBg: "#fff",
+        text: "#000",
+        textSecondary: "#000",
+        button: "#fff",
+        buttonText: "#000",
+      },
       changeTheme,
     },
   };
