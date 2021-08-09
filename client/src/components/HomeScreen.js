@@ -216,9 +216,6 @@ export default function HomeScreen() {
           deleteQuestion();
           dispatch(hideDialog());
           dispatch(loadingQuestions());
-          console.log(
-            `${endpoint}/questions/${allQuestions && allQuestions.type}`
-          );
           axios
             .get(`${endpoint}/questions/${allQuestions && allQuestions.type}`)
             .then(({ data }) => {

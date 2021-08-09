@@ -33,7 +33,6 @@ const Tab = styled.div`
 
 export function TabItem({ onTabClick, active, children }) {
   const { tabActive, tabInactive } = useContext(ThemeContext);
-  console.log(tabActive);
   return (
     <Tab
       activeColor={tabActive}
