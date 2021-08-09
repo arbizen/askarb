@@ -52,9 +52,9 @@ const WhiteBg = styled.span`
   width: auto;
   border-radius: 0 5px 5px 0;
   padding: 1px 6px;
-  background: #fff;
-  color: #000;
-  border: 2px solid #fff;
+  background: ${(props) => props.color};
+  border: 2px solid ${(props) => props.color};
+  color: ${(props) => props.text};
 `;
 
 const OnlyBorder = styled.span`
@@ -62,21 +62,24 @@ const OnlyBorder = styled.span`
   height: auto;
   width: auto;
   border-radius: 5px 0 0 5px;
-  border: 2px solid #fff;
+  border: 2px solid ${(props) => props.color};
   padding: 1px 6px;
+  color: ${(props) => props.color};
 `;
 
 const P = styled.p`
-  color: lightgrey;
+  color: ${(props) => props.color};
   margin: 10px 0;
 `;
 
 const LastSeen = styled.p`
   margin-left: 5px;
+  color: ${(props) => props.color};
 `;
 
 export default function HeaderBar() {
-  const { text, name, changeTheme, icon } = useContext(ThemeContext);
+  const { text, name, changeTheme, icon, textSecondary, header, headerNext } =
+    useContext(ThemeContext);
   const user = useSelector((state) => state.user.value);
   const dispatch = useDispatch();
   const history = useHistory();
@@ -87,7 +90,7 @@ export default function HeaderBar() {
           <IconButton onIconClick={() => history.push("/homepage")}>
             <Home color={icon} size={20} />
           </IconButton>
-          <LastSeen>
+          <LastSeen color={textSecondary}>
             {user && user.data
               ? "Welcome, " + user.data.name
               : "Last Seen • 6.02 AM"}
@@ -125,10 +128,12 @@ export default function HeaderBar() {
       </Header>
       <HeaderExtend>
         <Title>
-          <OnlyBorder>#ASK</OnlyBorder>
-          <WhiteBg>ARB</WhiteBg>
+          <OnlyBorder color={header}>#ASK</OnlyBorder>
+          <WhiteBg color={header} text={headerNext}>
+            ARB
+          </WhiteBg>
         </Title>
-        <P> -- 302 questions asked --</P>
+        <P color={textSecondary}> -- 302 questions asked --</P>
       </HeaderExtend>
     </>
   );

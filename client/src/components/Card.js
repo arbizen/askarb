@@ -34,7 +34,7 @@ const Left = styled.div`
   width: ${(props) => (props.full ? "100%" : "80%")};
   justify-content: flex-start;
   align-items: center;
-  color: #d3d3d3;
+  color: ${(props) => props.color};
   font-size: 13px;
 `;
 const Right = styled.div`
@@ -47,11 +47,12 @@ const Right = styled.div`
 
 const CardHeaderText = styled.h3`
   margin-bottom: 16px;
+  color: ${(props) => props.color};
 `;
 
 const CardBodyText = styled.p`
   margin-bottom: 16px;
-  color: #959da5;
+  color: ${(props) => props.color};
 `;
 
 const HiddenCardHolder = styled.div`
@@ -84,19 +85,27 @@ export function HiddenCard({ children }) {
 }
 
 export function CardBar({ left, right, leftfull, rightfull, at }) {
+  const { textSecondary } = useContext(ThemeContext);
   return (
     <CardBarHolder at={at}>
-      {!rightfull && <Left full={leftfull}>{left && left}</Left>}
+      {!rightfull && (
+        <Left color={textSecondary} full={leftfull}>
+          {left && left}
+        </Left>
+      )}
       {!leftfull && <Right full={rightfull}>{right && right}</Right>}
     </CardBarHolder>
   );
 }
 
 export function CardText({ type, text }) {
+  const { text: textColor, bodyText } = useContext(ThemeContext);
   return (
     <>
-      {type === "header" && <CardHeaderText>{text}</CardHeaderText>}
-      {type === "body" && <CardBodyText>{text}</CardBodyText>}
+      {type === "header" && (
+        <CardHeaderText color={textColor}>{text}</CardHeaderText>
+      )}
+      {type === "body" && <CardBodyText color={bodyText}>{text}</CardBodyText>}
     </>
   );
 }

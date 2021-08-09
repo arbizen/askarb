@@ -139,7 +139,6 @@ export function Dialog({
           <DialogButton onClick={onProceed}>{proceedText}</DialogButton>
         </DialogFooter>
       </Container>
-      ;
       {show && (
         <>
           <Backdrop onMouseUp={onClose} onDrag={onClose} onClick={onClose} />

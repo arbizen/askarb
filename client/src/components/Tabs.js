@@ -1,5 +1,6 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { ThemeContext } from "../context";
 const TabsContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -19,8 +20,8 @@ const Tab = styled.div`
   ${(props) =>
     props.active &&
     `
-    border-bottom: 2px solid #fff;
-    color: #fff;
+    color: ${props.activeColor};
+    border-bottom: 2px solid ${props.activeColor};
     &:hover {
       background: transparent;
     }
@@ -31,8 +32,15 @@ const Tab = styled.div`
 `;
 
 export function TabItem({ onTabClick, active, children }) {
+  const { tabActive, tabInactive } = useContext(ThemeContext);
+  console.log(tabActive);
   return (
-    <Tab active={active} onClick={onTabClick}>
+    <Tab
+      activeColor={tabActive}
+      inactiveColor={tabInactive}
+      active={active}
+      onClick={onTabClick}
+    >
       {children}
     </Tab>
   );

@@ -10,7 +10,6 @@ const IconButtonHolder = styled.div`
   margin-right: 2.5px;
   &:hover {
     filter: brightness(1.3);
-    color: red;
   }
   @media only screen and (max-width: 600px) {
     cursor: default;
