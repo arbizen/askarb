@@ -29,6 +29,10 @@ const userSlice = createSlice({
       if (localStorage) {
         const user = localStorage.getItem("user");
         state.value = JSON.parse(user);
+      } else {
+        state.value = {
+          ...state.value,
+        };
       }
     },
   },
