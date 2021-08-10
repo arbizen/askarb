@@ -6,20 +6,30 @@ const userSlice = createSlice({
   reducers: {
     setUser: (state, action) => {
       const user = localStorage.getItem("user");
-      if (user) {
-        state.value = JSON.parse(user);
+      if (localStorage) {
+        if (user) {
+          state.value = JSON.parse(user);
+        } else {
+          localStorage.setItem("user", JSON.stringify(action.payload));
+          state.value = action.payload;
+        }
       } else {
-        localStorage.setItem("user", JSON.stringify(action.payload));
         state.value = action.payload;
       }
     },
     removeUser: (state) => {
-      localStorage.removeItem("user");
-      state.value = {};
+      if (localStorage) {
+        localStorage.removeItem("user");
+        state.value = {};
+      } else {
+        state.value = {};
+      }
     },
     updateUser: (state) => {
-      const user = localStorage.getItem("user");
-      state.value = JSON.parse(user);
+      if (localStorage) {
+        const user = localStorage.getItem("user");
+        state.value = JSON.parse(user);
+      }
     },
   },
 });
