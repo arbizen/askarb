@@ -12,6 +12,7 @@ const ToastHolder = styled.div`
   padding: 10px 15px;
   position: fixed;
   bottom: 20px;
+  left: 20px;
   transform: translateX(-110%);
   transition: transform 0.5s;
   border-radius: 5px;
@@ -29,7 +30,7 @@ export function ToastInside() {
   useEffect(() => {
     container.current.style.transform = "translateX(0)";
     const t = setTimeout(() => {
-      container.current.style.transform = "translateX(-110%)";
+      container.current.style.transform = "translateX(-150%)";
       setTimeout(() => {
         dispatch(hideToast());
       }, 1000);

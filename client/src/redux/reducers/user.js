@@ -5,8 +5,8 @@ const userSlice = createSlice({
   initialState: {},
   reducers: {
     setUser: (state, action) => {
-      const user = localStorage.getItem("user");
       if (localStorage) {
+        const user = localStorage.getItem("user");
         if (user) {
           state.value = JSON.parse(user);
         } else {
