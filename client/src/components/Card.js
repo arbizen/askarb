@@ -14,7 +14,7 @@ const MainCard = styled.div`
   width: calc(50% - 20px);
   background: ${(props) => props.bg};
   margin: 10px;
-  padding: 20px;
+  padding: 20px 20px 50px 20px;
   box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
     0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
   border-radius: 10px;
@@ -27,6 +27,10 @@ const CardBarHolder = styled.div`
   width: 100%;
   display: flex;
   margin-bottom: 12px;
+  ${(props) => props.at === "bottom" && `
+    position: absolute;
+    bottom: 10px;
+  `}
 `;
 
 const Left = styled.div`
