@@ -83,6 +83,7 @@ const NotAnswerCard = ({ question, by, id, at }) => {
       />
       <CardText type="body" text={question} />
       <CardBar
+        at="bottom"
         left={
           <>
             <User size={18} color={icon} />

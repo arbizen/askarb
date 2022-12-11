@@ -28,6 +28,7 @@ router.get("/all", async (req, res) => {
 });
 
 router.get("/answered", async (req, res) => {
+  const { pageNumber, nPerPage } = req.params;
   try {
     const questions = await Question.find({ isAnswered: true }).sort({
       _id: -1,
