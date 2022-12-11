@@ -133,7 +133,7 @@ export default function HeaderBar() {
             ARB
           </WhiteBg>
         </Title>
-        <P color={textSecondary}> -- 302 questions asked --</P>
+        <P color={textSecondary}> -- 300 questions asked --</P>
       </HeaderExtend>
     </>
   );
