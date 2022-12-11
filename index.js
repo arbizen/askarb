@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const app = express();
 const path = require("path");
+const origins = require("./config/allowedOrigins");
 
 // import routers
 const questionRouter = require("./api/questions");
@@ -13,7 +14,19 @@ const userRouter = require("./api/user");
 // require dotenv.
 dotenv.config();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (origins.indexOf(origin) !== -1 || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by cors"));
+      }
+    },
+    credentials: true,
+    optionsSuccessStatus: 200,
+  })
+);
 app.use(bodyParser.json());
 
 const uri = process.env.MONGODB_URI;
